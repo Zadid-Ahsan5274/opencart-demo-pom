@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="OpenCart Regression Test Automation Suite" verbose="4" thread-count="4" parallel="tests">
+  <test  name="Open Cart test page title, url and search">
+    <classes>
+      <class name="com.qa.opencart.tests.HomePageTest"/> 
+      <class name="com.qa.opencart.tests.LoginPageTest"/>
+    </classes>
+  </test> 
+</suite> 
