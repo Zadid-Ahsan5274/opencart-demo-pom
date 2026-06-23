@@ -1,0 +1,91 @@
+name: OpenCart Playwright CI
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master", "develop" ]
+  workflow_dispatch:          # allows manual trigger from the Actions tab
+
+jobs:
+  test:
+    name: Playwright TestNG Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Java 17 with Maven cache ──────────────────────────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # ── 3. Install Playwright browsers ───────────────────────────────────
+      #    Playwright for Java ships browsers via the Maven plugin goal.
+      #    The browsers are cached between runs to speed things up.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        run: mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI \
+               -D exec.args="install --with-deps chromium" -B
+        # Change 'chromium' → 'chromium firefox webkit' if you run cross-browser
+
+      # ── 4. Run TestNG suite ──────────────────────────────────────────────
+      - name: Run tests
+        run: mvn clean test -B
+        env:
+          BASE_URL: "https://demo.opencart.com"   # override in your config if needed
+          HEADLESS: "true"                         # read this env var in your BaseTest
+
+      # ── 5. Upload ExtentReport HTML ──────────────────────────────────────
+      #    Adjust the path below to wherever your listener writes the report.
+      #    Common paths: reports/, test-output/ExtentReport.html, extent-reports/
+      - name: Upload ExtentReport
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: extent-report
+          path: |
+            reports/
+            test-output/ExtentReport*.html
+          retention-days: 30
+
+      # ── 6. Upload TestNG Surefire XML + HTML ─────────────────────────────
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: target/surefire-reports/
+          retention-days: 14
+
+      # ── 7. Upload Playwright trace / screenshots / videos on failure ──────
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-artifacts
+          path: |
+            test-output/screenshots/
+            test-output/videos/
+            test-output/traces/
+          retention-days: 7
+
+      # ── 8. Publish Surefire HTML as a GitHub Actions summary ─────────────
+      - name: Publish test summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: TestNG Results
+          path: target/surefire-reports/TEST-*.xml
+          reporter: java-junit          # TestNG produces JUnit-compatible XML
