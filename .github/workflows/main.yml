@@ -25,13 +25,15 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # ── 3. Build project first (downloads all Maven deps incl. Playwright) ─
-      - name: Build with Maven (skip tests)
-        run: mvn clean install -DskipTests -B
+      # ── 3. Show pom.xml for debug (helps catch dependency issues) ─────────
+      - name: Print pom.xml
+        run: cat pom.xml
 
-      # ── 4. Install Playwright browsers ───────────────────────────────────
-      #    After mvn install, the playwright-java jar is in ~/.m2.
-      #    We use the CLI class that ships inside it.
+      # ── 4. Download all dependencies ──────────────────────────────────────
+      - name: Resolve Maven dependencies
+        run: mvn dependency:resolve -B
+
+      # ── 5. Install Playwright browsers ────────────────────────────────────
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
@@ -40,20 +42,22 @@ jobs:
           restore-keys: playwright-${{ runner.os }}-
 
       - name: Install Playwright browsers + OS deps
-        run: mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium" -B
-        # If the above still fails, uncomment this alternative:
-        # run: java -cp $(mvn dependency:build-classpath -Dmdep.outputFile=/dev/stdout -q) com.microsoft.playwright.CLI install --with-deps chromium
+        run: |
+          PLAYWRIGHT_VERSION=$(mvn help:evaluate -Dexpression=project.properties 2>/dev/null | grep -A1 'playwright' | tail -1 || echo "")
+          mvn exec:java -e \
+            -Dexec.mainClass=com.microsoft.playwright.CLI \
+            -Dexec.args="install --with-deps chromium" \
+            -B
 
-      # ── 5. Run TestNG tests ───────────────────────────────────────────────
+      # ── 6. Run TestNG tests ───────────────────────────────────────────────
       - name: Run tests
         run: mvn test -B
         env:
           BASE_URL: "https://demo.opencart.com"
           HEADLESS: "true"
-        continue-on-error: true    # ensures report upload runs even if tests fail
+        continue-on-error: true
 
-      # ── 6. Upload ExtentReport ────────────────────────────────────────────
-      #    Adjust glob to match your actual report output path
+      # ── 7. Upload ExtentReport ────────────────────────────────────────────
       - name: Upload ExtentReport
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,10 +67,11 @@ jobs:
             reports/
             ExtentReports/
             test-output/ExtentReport*.html
+            ExtentReport*.html
           if-no-files-found: warn
           retention-days: 30
 
-      # ── 7. Upload Surefire XML + HTML ─────────────────────────────────────
+      # ── 8. Upload Surefire XML ────────────────────────────────────────────
       - name: Upload Surefire reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,24 +81,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      # ── 8. Upload screenshots / videos on failure ─────────────────────────
-      - name: Upload failure artifacts
-        if: failure()
+      # ── 9. Upload screenshots on failure ──────────────────────────────────
+      - name: Upload screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: failure-artifacts
+          name: screenshots
           path: |
             screenshots/
             test-output/screenshots/
           if-no-files-found: warn
           retention-days: 7
-
-      # ── 9. Publish TestNG results summary on PR / Actions page ────────────
-      - name: Publish test summary
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: TestNG Results
-          path: target/surefire-reports/TEST-*.xml
-          reporter: java-junit
-          fail-on-error: false     # don't fail the workflow if XML is missing
