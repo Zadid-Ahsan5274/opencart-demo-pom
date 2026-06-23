@@ -1,30 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite thread-count="4" parallel="tests" name="Failed suite [OpenCart Regression Test Automation Suite]" guice-stage="DEVELOPMENT" verbose="4">
+  <listeners>
+    <listener class-name="com.qa.opencart.listeners.ExtentReportListener"/>
+  </listeners>
   <test thread-count="4" parallel="tests" name="Open Cart Home page test(failed)" verbose="4">
     <classes>
       <class name="com.qa.opencart.tests.HomePageTest">
         <methods>
           <include name="tearDown"/>
-          <include name="homePageURLTest"/>
-          <include name="searchTest"/>
           <include name="homePageTitleTest"/>
           <include name="setUp"/>
         </methods>
       </class> <!-- com.qa.opencart.tests.HomePageTest -->
     </classes>
   </test> <!-- Open Cart Home page test(failed) -->
-  <test thread-count="4" parallel="tests" name="Open Cart Login page test(failed)" verbose="4">
-    <classes>
-      <class name="com.qa.opencart.tests.LoginPageTest">
-        <methods>
-          <include name="loginTest"/>
-          <include name="tearDown"/>
-          <include name="setUp"/>
-          <include name="loginPageNavigationTest"/>
-          <include name="forgotPasswordLinkExistTest"/>
-        </methods>
-      </class> <!-- com.qa.opencart.tests.LoginPageTest -->
-    </classes>
-  </test> <!-- Open Cart Login page test(failed) -->
 </suite> <!-- Failed suite [OpenCart Regression Test Automation Suite] -->

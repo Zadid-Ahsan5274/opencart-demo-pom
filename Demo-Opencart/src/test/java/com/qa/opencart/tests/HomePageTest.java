@@ -1,17 +1,10 @@
 package com.qa.opencart.tests;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-
-import com.microsoft.playwright.Page;
-import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.qa.opencart.base.TestBase;
 import com.qa.opencart.constants.AppConstants;
-import com.qa.opencart.factory.PlaywrightFactory;
-import com.qa.opencart.pages.HomePage;
 
 public class HomePageTest extends TestBase{
 	

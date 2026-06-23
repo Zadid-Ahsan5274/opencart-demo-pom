@@ -1,1 +1,137 @@
 /target/
+# Eclipse Core
+.project
+.classpath
+.settings/
+.metadata/
+
+# Eclipse generated files
+*.prefs
+*.xml~
+*.tmp
+*.log
+*.bak
+*.orig
+*.old
+*.rej
+
+# Intellij IDEA (if using both)
+*.iml
+.idea/
+*.iws
+*.ipr
+
+# Compiled Java files
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+build/
+gradle/
+build.gradle
+gradle.properties
+settings.gradle
+gradlew
+gradlew.bat
+
+# Ant
+build/
+dist/
+lib/
+dependency/
+*.properties
+*.properties~
+
+# JUnit
+test-output/
+junit*.properties
+TEST-*.xml
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Backup files
+*~
+*.swp
+*.swo
+*.lock
+*.pid
+
+# Local configuration files
+*.local
+*.secret
+.env
+.env.local
+.env.*.local
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Project specific
+myproject/
+bin/
+gen/
+libs/
+obj/
+out/
+
+# Spring Boot
+spring-boot-devtools.properties
+application-dev.properties
+application-local.properties
+
+# Node.js (if using frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Docker
+docker-compose.override.yml
+*.pid
+*.pid.lock
+
+# IDE specific
+.vscode/
+*.code-workspace
+.apt_generated/
+.apt_generated_tests/
+.factorypath
+.springBeans
+.sts4-cache/
