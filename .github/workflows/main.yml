@@ -2,10 +2,8 @@ name: Daily Playwright Automation Tests
 
 on:
   schedule:
-    # Runs every day at 9:00 AM UTC (Adjust timezone if necessary)
-    - cron: '0 9 * * *'
+    - cron: '0 9 * * *' # 9:00 AM UTC
   workflow_dispatch:
-    # Allows you to trigger the workflow manually from the GitHub UI
 
 jobs:
   test:
@@ -13,36 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Java 25
       - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'temurin' # Eclipse Temurin supports early/latest Java releases
+          distribution: 'temurin'
           cache: 'maven'
 
-      # Step 3: Install Playwright Browsers
-      # This runs the Maven exec plugin to download the required browser binaries
+      # Step 3: Added working-directory pointing to Demo-Opencart
       - name: Install Playwright Browsers
+        working-directory: ./Demo-Opencart
         run: mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps"
 
-      # Step 4: Run TestNG Suites via Maven
-      # "continue-on-error: true" ensures the workflow doesn't completely fail before uploading reports if tests fail
+      # Step 4: Added working-directory pointing to Demo-Opencart
       - name: Run Tests
+        working-directory: ./Demo-Opencart
         run: mvn clean test
         continue-on-error: true
 
-      # Step 5: Upload Test Reports as Artifacts
-      # This grabs the standard TestNG HTML report and Playwright traces (if configured)
+      # Step 5: Updated paths to look inside Demo-Opencart folder for the reports
       - name: Upload Detailed Test Report
         uses: actions/upload-artifact@v4
         with:
           name: detailed-test-report
           path: |
-            target/surefire-reports/
-            target/playwright-traces/
+            Demo-Opencart/target/surefire-reports/
+            Demo-Opencart/target/playwright-traces/
           retention-days: 7
